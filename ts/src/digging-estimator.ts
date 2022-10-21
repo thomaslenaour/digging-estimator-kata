@@ -31,24 +31,26 @@ export class DiggingEstimator {
       throw new InvalidFormatException();
     }
 
+    const flooredLengthByDay = Math.floor(length / days);
+
     const digPerRotation = this.getDayMeters(rockType);
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
 
-    if (Math.floor(length / days) > maxDigPerDay) {
+    if (flooredLengthByDay > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
     const composition = new TeamComposition();
 
     // Miners
     for (let i = 0; i < digPerRotation.length - 1; ++i) {
-      if (digPerRotation[i] < Math.floor(length / days)) {
+      if (digPerRotation[i] < flooredLengthByDay) {
         composition.dayTeam.miners++;
       }
     }
-    if (Math.floor(length / days) > maxDigPerRotation) {
+    if (flooredLengthByDay > maxDigPerRotation) {
       for (let i = 0; i < digPerRotation.length - 1; ++i) {
-        if (digPerRotation[i] + maxDigPerRotation < Math.floor(length / days)) {
+        if (digPerRotation[i] + maxDigPerRotation < flooredLengthByDay) {
           composition.nightTeam.miners++;
         }
       }
