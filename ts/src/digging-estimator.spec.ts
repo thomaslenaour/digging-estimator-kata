@@ -10,11 +10,19 @@ describe('digging estimator', () => {
   beforeEach(() => {
     estimator = new DiggingEstimator();
   });
+
   it('should return as Dr Pockovsky said', () => {
     // To have it work, you need to go set the rates to [0, 3, 5.5, 7]
     const result = estimator.tunnel(28, 2, 'granite');
 
     expect(result.total).toBe(48);
+  });
+
+  it('should return 9 dwarf when minimal team can do in one day', () => {
+    // To have it work, you need to go set the rates to [0, 3, 5.5, 7]
+    const result = estimator.tunnel(3, 1, 'granite');
+
+    expect(result.total).toBe(9);
   });
 
   describe('should throw an exception', () => {
