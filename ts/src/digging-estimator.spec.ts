@@ -1,4 +1,8 @@
-import { DiggingEstimator } from './digging-estimator';
+import {
+  DiggingEstimator,
+  InvalidFormatException,
+  TunnelTooLongForDelayException,
+} from './digging-estimator';
 
 describe('digging estimator', () => {
   let estimator: DiggingEstimator;
@@ -15,20 +19,42 @@ describe('digging estimator', () => {
 
   describe('should throw an exception', () => {
     describe('InvalidFormatException', () => {
+      let expectedError: InvalidFormatException;
+
+      beforeEach(() => {
+        expectedError = new InvalidFormatException();
+      });
+
       it('should return a format error when `length` is invalid', () => {
-        expect(() => estimator.tunnel(NaN, 2, 'granite')).toThrowError();
+        expect(() => estimator.tunnel(NaN, 2, 'granite')).toThrow(
+          expectedError,
+        );
       });
 
       it('should return a format error when `days` is invalid', () => {
-        expect(() => estimator.tunnel(28, NaN, 'granite')).toThrowError();
+        expect(() => estimator.tunnel(28, NaN, 'granite')).toThrow(
+          expectedError,
+        );
       });
 
       it('should return a format error when `length` is < 0', () => {
-        expect(() => estimator.tunnel(-10, 2, 'granite')).toThrowError();
+        expect(() => estimator.tunnel(-10, 2, 'granite')).toThrow(
+          expectedError,
+        );
       });
 
       it('should return a format error when `days` is < 0', () => {
-        expect(() => estimator.tunnel(29, -10, 'granite')).toThrowError();
+        expect(() => estimator.tunnel(29, -10, 'granite')).toThrow(
+          expectedError,
+        );
+      });
+    });
+
+    describe('TunnelTooLongForDelayException', () => {
+      it('should return too long error when there are no enough days', () => {
+        expect(() => estimator.tunnel(28, 1, 'granite')).toThrow(
+          new TunnelTooLongForDelayException(),
+        );
       });
     });
   });
