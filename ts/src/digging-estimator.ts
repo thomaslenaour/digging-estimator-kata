@@ -1,8 +1,6 @@
-export class TunnelTooLongForDelayException extends Error {
-}
+export class TunnelTooLongForDelayException extends Error {}
 
-export class InvalidFormatException extends Error {
-}
+export class InvalidFormatException extends Error {}
 
 export class Team {
   miners = 0;
@@ -28,7 +26,12 @@ export class DiggingEstimator {
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
 
-    if (Math.floor(length) !== length || Math.floor(days) !== days || length < 0 || days < 0) {
+    if (
+      Math.floor(length) !== length ||
+      Math.floor(days) !== days ||
+      length < 0 ||
+      days < 0
+    ) {
       throw new InvalidFormatException();
     }
     if (Math.floor(length / days) > maxDigPerDay) {
@@ -70,11 +73,14 @@ export class DiggingEstimator {
 
     if (dt.miners > 0) {
       dt.innKeepers = Math.ceil((dt.miners + dt.healers + dt.smithies) / 4) * 4;
-      dt.washers = Math.ceil((dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10);
+      dt.washers = Math.ceil(
+        (dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10,
+      );
     }
 
     if (nt.miners > 0) {
-      nt.innKeepers = Math.ceil((nt.miners + nt.healers + nt.smithies + nt.lighters) / 4) * 4;
+      nt.innKeepers =
+        Math.ceil((nt.miners + nt.healers + nt.smithies + nt.lighters) / 4) * 4;
     }
 
     // eslint-disable-next-line no-constant-condition
@@ -83,21 +89,48 @@ export class DiggingEstimator {
       const oldGuard = nt.guards;
       const oldChiefGuard = nt.guardManagers;
 
-      nt.washers = Math.ceil((nt.miners + nt.healers + nt.smithies + nt.innKeepers + nt.lighters + nt.guards + nt.guardManagers) / 10);
-      nt.guards = Math.ceil((nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3);
-      nt.guardManagers = Math.ceil((nt.guards) / 3);
+      nt.washers = Math.ceil(
+        (nt.miners +
+          nt.healers +
+          nt.smithies +
+          nt.innKeepers +
+          nt.lighters +
+          nt.guards +
+          nt.guardManagers) /
+          10,
+      );
+      nt.guards = Math.ceil(
+        (nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3,
+      );
+      nt.guardManagers = Math.ceil(nt.guards / 3);
 
-      if (oldWashers === nt.washers && oldGuard === nt.guards && oldChiefGuard === nt.guardManagers) {
+      if (
+        oldWashers === nt.washers &&
+        oldGuard === nt.guards &&
+        oldChiefGuard === nt.guardManagers
+      ) {
         break;
       }
     }
 
-    composition.total = dt.miners + dt.washers + dt.healers + dt.smithies + dt.innKeepers +
-      nt.miners + nt.washers +  nt.healers  + nt.smithies  + nt.innKeepers + nt.guards + nt.guardManagers + nt.lighters;
+    composition.total =
+      dt.miners +
+      dt.washers +
+      dt.healers +
+      dt.smithies +
+      dt.innKeepers +
+      nt.miners +
+      nt.washers +
+      nt.healers +
+      nt.smithies +
+      nt.innKeepers +
+      nt.guards +
+      nt.guardManagers +
+      nt.lighters;
     return composition;
   }
 
-  private get(rockType: string) : number[] {
+  private get(rockType: string): number[] {
     // For example, for granite it returns [0, 3, 5.5, 7]
     // if you put 0 dwarf, you dig 0m/d/team
     // if you put 1 dwarf, you dig 3m/d/team
@@ -106,6 +139,5 @@ export class DiggingEstimator {
     const url = `dtp://research.vin.co/digging-rate/${rockType}`;
     console.log(`Tried to fetch ${url}`);
     throw new Error('Does not work in test mode');
-
   }
 }
