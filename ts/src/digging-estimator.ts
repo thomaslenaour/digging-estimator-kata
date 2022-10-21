@@ -58,30 +58,33 @@ export class DiggingEstimator {
     const dt = composition.dayTeam;
     const nt = composition.nightTeam;
 
-    if (dt.miners > 0) {
+    const dayTeamHasMiners = dt.miners > 0;
+    const nightTeamHasMiners = nt.miners > 0;
+
+    if (dayTeamHasMiners) {
       ++dt.healers;
       ++dt.smithies;
       ++dt.smithies;
     }
 
-    if (nt.miners > 0) {
+    if (nightTeamHasMiners) {
       ++nt.healers;
       ++nt.smithies;
       ++nt.smithies;
     }
 
-    if (nt.miners > 0) {
+    if (nightTeamHasMiners) {
       nt.lighters = nt.miners + 1;
     }
 
-    if (dt.miners > 0) {
+    if (dayTeamHasMiners) {
       dt.innKeepers = Math.ceil((dt.miners + dt.healers + dt.smithies) / 4) * 4;
       dt.washers = Math.ceil(
         (dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10,
       );
     }
 
-    if (nt.miners > 0) {
+    if (nightTeamHasMiners) {
       nt.innKeepers =
         Math.ceil((nt.miners + nt.healers + nt.smithies + nt.lighters) / 4) * 4;
     }
