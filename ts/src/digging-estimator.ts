@@ -55,84 +55,101 @@ export class DiggingEstimator {
         }
       }
     }
-    const dt = composition.dayTeam;
-    const nt = composition.nightTeam;
+    const dayTeam = composition.dayTeam;
+    const nightTeam = composition.nightTeam;
 
-    const dayTeamHasMiners = dt.miners > 0;
-    const nightTeamHasMiners = nt.miners > 0;
+    const dayTeamHasMiners = dayTeam.miners > 0;
+    const nightTeamHasMiners = nightTeam.miners > 0;
 
     if (dayTeamHasMiners) {
-      ++dt.healers;
-      ++dt.smithies;
-      ++dt.smithies;
+      ++dayTeam.healers;
+      ++dayTeam.smithies;
+      ++dayTeam.smithies;
     }
 
     if (nightTeamHasMiners) {
-      ++nt.healers;
-      ++nt.smithies;
-      ++nt.smithies;
+      ++nightTeam.healers;
+      ++nightTeam.smithies;
+      ++nightTeam.smithies;
     }
 
     if (nightTeamHasMiners) {
-      nt.lighters = nt.miners + 1;
+      nightTeam.lighters = nightTeam.miners + 1;
     }
 
     if (dayTeamHasMiners) {
-      dt.innKeepers = Math.ceil((dt.miners + dt.healers + dt.smithies) / 4) * 4;
-      dt.washers = Math.ceil(
-        (dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10,
+      dayTeam.innKeepers =
+        Math.ceil((dayTeam.miners + dayTeam.healers + dayTeam.smithies) / 4) *
+        4;
+      dayTeam.washers = Math.ceil(
+        (dayTeam.miners +
+          dayTeam.healers +
+          dayTeam.smithies +
+          dayTeam.innKeepers) /
+          10,
       );
     }
 
     if (nightTeamHasMiners) {
-      nt.innKeepers =
-        Math.ceil((nt.miners + nt.healers + nt.smithies + nt.lighters) / 4) * 4;
+      nightTeam.innKeepers =
+        Math.ceil(
+          (nightTeam.miners +
+            nightTeam.healers +
+            nightTeam.smithies +
+            nightTeam.lighters) /
+            4,
+        ) * 4;
     }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const oldWashers = nt.washers;
-      const oldGuard = nt.guards;
-      const oldChiefGuard = nt.guardManagers;
+      const oldWashers = nightTeam.washers;
+      const oldGuard = nightTeam.guards;
+      const oldChiefGuard = nightTeam.guardManagers;
 
-      nt.washers = Math.ceil(
-        (nt.miners +
-          nt.healers +
-          nt.smithies +
-          nt.innKeepers +
-          nt.lighters +
-          nt.guards +
-          nt.guardManagers) /
+      nightTeam.washers = Math.ceil(
+        (nightTeam.miners +
+          nightTeam.healers +
+          nightTeam.smithies +
+          nightTeam.innKeepers +
+          nightTeam.lighters +
+          nightTeam.guards +
+          nightTeam.guardManagers) /
           10,
       );
-      nt.guards = Math.ceil(
-        (nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3,
+      nightTeam.guards = Math.ceil(
+        (nightTeam.healers +
+          nightTeam.miners +
+          nightTeam.smithies +
+          nightTeam.lighters +
+          nightTeam.washers) /
+          3,
       );
-      nt.guardManagers = Math.ceil(nt.guards / 3);
+      nightTeam.guardManagers = Math.ceil(nightTeam.guards / 3);
 
       if (
-        oldWashers === nt.washers &&
-        oldGuard === nt.guards &&
-        oldChiefGuard === nt.guardManagers
+        oldWashers === nightTeam.washers &&
+        oldGuard === nightTeam.guards &&
+        oldChiefGuard === nightTeam.guardManagers
       ) {
         break;
       }
     }
 
     composition.total =
-      dt.miners +
-      dt.washers +
-      dt.healers +
-      dt.smithies +
-      dt.innKeepers +
-      nt.miners +
-      nt.washers +
-      nt.healers +
-      nt.smithies +
-      nt.innKeepers +
-      nt.guards +
-      nt.guardManagers +
-      nt.lighters;
+      dayTeam.miners +
+      dayTeam.washers +
+      dayTeam.healers +
+      dayTeam.smithies +
+      dayTeam.innKeepers +
+      nightTeam.miners +
+      nightTeam.washers +
+      nightTeam.healers +
+      nightTeam.smithies +
+      nightTeam.innKeepers +
+      nightTeam.guards +
+      nightTeam.guardManagers +
+      nightTeam.lighters;
     return composition;
   }
 
