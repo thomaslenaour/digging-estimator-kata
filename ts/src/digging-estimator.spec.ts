@@ -42,6 +42,30 @@ describe('digging estimator', () => {
 
       expect(result.dayTeam.lighters).toBe(0);
     });
+
+    it('should have 8 innkeepers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.innKeepers).toBe(8);
+    })
+
+    it('should have 0 guards', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.guards).toBe(0);
+    })
+
+    it('should have 0 guardManagers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.guardManagers).toBe(0);
+    })
+
+    it('should have 2 washers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.washers).toBe(2);
+    })
   });
 
   describe('night team', () => {
@@ -68,6 +92,30 @@ describe('digging estimator', () => {
 
       expect(result.nightTeam.lighters).toBe(4);
     });
+
+    it('should have 12 innkeepers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.innKeepers).toBe(12);
+    })
+
+    it('should have 5 guards', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.guards).toBe(5);
+    })
+
+    it('should have 2 guardManagers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.guardManagers).toBe(2);
+    })
+
+    it('should have 3 washers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.washers).toBe(3);
+    })
   });
 
   describe('should throw an exception', () => {
