@@ -132,6 +132,7 @@ export class DiggingEstimator {
 
   private get(rockType: string): number[] {
     // For example, for granite it returns [0, 3, 5.5, 7]
+    return [0, 3, 5.5, 7];
     // if you put 0 dwarf, you dig 0m/d/team
     // if you put 1 dwarf, you dig 3m/d/team
     // 2 dwarves = 5.5m/d/team

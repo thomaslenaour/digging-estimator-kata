@@ -9,4 +9,29 @@ describe('digging estimator', () => {
 
     expect(result.total).toBe(48);
   });
+
+  describe('should throw a invalid format error', () => {
+    it('should return a format error when `length` is invalid', () => {
+      const estimator = new DiggingEstimator();
+
+      expect(() => estimator.tunnel(NaN, 2, 'granite')).toThrowError();
+    });
+
+    it('should return a format error when `days` is invalid', () => {
+      const estimator = new DiggingEstimator();
+
+      expect(() => estimator.tunnel(28, NaN, 'granite')).toThrowError();
+    });
+
+    it('should return a format error when `length` is < 0', () => {
+      const estimator = new DiggingEstimator();
+
+      expect(() => estimator.tunnel(-10, 2, 'granite')).toThrowError();
+    });
+    it('should return a format error when `days` is < 0', () => {
+      const estimator = new DiggingEstimator();
+
+      expect(() => estimator.tunnel(29, -10, 'granite')).toThrowError();
+    });
+  });
 });
