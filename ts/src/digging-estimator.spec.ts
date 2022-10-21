@@ -4,11 +4,18 @@ import {
   TunnelTooLongForDelayException,
 } from './digging-estimator';
 
+class FakeDiggingEstimator extends DiggingEstimator {
+  get() {
+    console.log('trigger');
+    return [0, 3, 5.5, 7];
+  }
+}
+
 describe('digging estimator', () => {
   let estimator: DiggingEstimator;
 
   beforeEach(() => {
-    estimator = new DiggingEstimator();
+    estimator = new FakeDiggingEstimator();
   });
 
   it('should return as Dr Pockovsky said', () => {
@@ -47,25 +54,25 @@ describe('digging estimator', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.dayTeam.innKeepers).toBe(8);
-    })
+    });
 
     it('should have 0 guards', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.dayTeam.guards).toBe(0);
-    })
+    });
 
     it('should have 0 guardManagers', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.dayTeam.guardManagers).toBe(0);
-    })
+    });
 
     it('should have 2 washers', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.dayTeam.washers).toBe(2);
-    })
+    });
   });
 
   describe('night team', () => {
@@ -97,25 +104,25 @@ describe('digging estimator', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.nightTeam.innKeepers).toBe(12);
-    })
+    });
 
     it('should have 5 guards', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.nightTeam.guards).toBe(5);
-    })
+    });
 
     it('should have 2 guardManagers', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.nightTeam.guardManagers).toBe(2);
-    })
+    });
 
     it('should have 3 washers', () => {
       const result = estimator.tunnel(28, 2, 'granite');
 
       expect(result.nightTeam.washers).toBe(3);
-    })
+    });
   });
 
   describe('should throw an exception', () => {
