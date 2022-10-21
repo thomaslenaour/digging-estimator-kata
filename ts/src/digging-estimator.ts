@@ -22,10 +22,6 @@ export class TeamComposition {
 
 export class DiggingEstimator {
   tunnel(length: number, days: number, rockType: string): TeamComposition {
-    const digPerRotation = this.get(rockType);
-    const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
-    const maxDigPerDay = 2 * maxDigPerRotation;
-
     if (
       Math.floor(length) !== length ||
       Math.floor(days) !== days ||
@@ -34,6 +30,11 @@ export class DiggingEstimator {
     ) {
       throw new InvalidFormatException();
     }
+
+    const digPerRotation = this.getDayMeters(rockType);
+    const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
+    const maxDigPerDay = 2 * maxDigPerRotation;
+
     if (Math.floor(length / days) > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
@@ -130,9 +131,8 @@ export class DiggingEstimator {
     return composition;
   }
 
-  protected get(rockType: string): number[] {
+  protected getDayMeters(rockType: string): number[] {
     // For example, for granite it returns [0, 3, 5.5, 7]
-    return [0, 3, 5.5, 7];
     // if you put 0 dwarf, you dig 0m/d/team
     // if you put 1 dwarf, you dig 3m/d/team
     // 2 dwarves = 5.5m/d/team
