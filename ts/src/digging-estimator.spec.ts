@@ -18,11 +18,56 @@ describe('digging estimator', () => {
     expect(result.total).toBe(48);
   });
 
-  it('should return 9 dwarf when minimal team can do in one day', () => {
-    // To have it work, you need to go set the rates to [0, 3, 5.5, 7]
-    const result = estimator.tunnel(3, 1, 'granite');
+  describe('day team', () => {
+    it('should have 3 miners', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
 
-    expect(result.total).toBe(9);
+      expect(result.dayTeam.miners).toBe(3);
+    });
+
+    it('should have 2 smithies', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.smithies).toBe(2);
+    });
+
+    it('should have 1 healer', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.healers).toBe(1);
+    });
+
+    it('should not have lighter', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.dayTeam.lighters).toBe(0);
+    });
+  });
+
+  describe('night team', () => {
+    it('should have 3 miners', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.miners).toBe(3);
+    });
+
+    it('should have 2 smithies', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.smithies).toBe(2);
+    });
+
+    it('should have 1 healer', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.healers).toBe(1);
+    });
+
+    it('should have 4 ligthers', () => {
+      const result = estimator.tunnel(28, 2, 'granite');
+
+      expect(result.nightTeam.lighters).toBe(4);
+    });
   });
 
   describe('should throw an exception', () => {
