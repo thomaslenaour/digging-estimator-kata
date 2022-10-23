@@ -76,18 +76,19 @@ export class DiggingEstimator {
     }
 
     if (nightTeamHasMiners) {
-      nightTeam.lighters = nightTeam.miners + 1;
+      nightTeam.lighters = nightTeam.miners + 1 + (nightTeam.protectors / 2 * 2);
     }
 
     if (dayTeamHasMiners) {
       dayTeam.innKeepers =
-        Math.ceil((dayTeam.miners + dayTeam.healers + dayTeam.smithies) / 4) *
+        Math.ceil((dayTeam.miners + dayTeam.healers + dayTeam.smithies + dayTeam.protectors) / 4) *
         4;
       dayTeam.washers = Math.ceil(
         (dayTeam.miners +
           dayTeam.healers +
           dayTeam.smithies +
-          dayTeam.innKeepers) /
+          dayTeam.innKeepers +
+          dayTeam.protectors) /
           10,
       );
     }
@@ -116,7 +117,8 @@ export class DiggingEstimator {
           nightTeam.innKeepers +
           nightTeam.lighters +
           nightTeam.guards +
-          nightTeam.guardManagers) /
+          nightTeam.guardManagers +
+          nightTeam.protectors) /
           10,
       );
       nightTeam.guards = Math.ceil(
@@ -136,6 +138,14 @@ export class DiggingEstimator {
       ) {
         break;
       }
+    }
+
+    if(isGoblins) {
+      ++dayTeam.protectors;
+      ++dayTeam.protectors;
+      ++nightTeam.protectors;
+      ++nightTeam.protectors;
+      ++nightTeam.lighters;
     }
 
     composition.total =

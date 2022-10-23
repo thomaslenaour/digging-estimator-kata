@@ -22,7 +22,7 @@ describe('digging estimator', () => {
     // To have it work, you need to go set the rates to [0, 3, 5.5, 7]
     const result = estimator.tunnel(28, 2, 'granite');
 
-    expect(result.total).toBe(48);
+    expect(result.total).toBe(49);
   });
 
   describe('day team', () => {
@@ -73,6 +73,14 @@ describe('digging estimator', () => {
 
       expect(result.dayTeam.washers).toBe(2);
     });
+
+    // describe('is goblins?', () => {
+    //   it('should have 2 protectors', () => {
+    //     const result = estimator.tunnel(28, 2, 'granite');
+
+    //     expect(result.dayTeam.protectors).toBe(2);
+    //   })
+    // })
   });
 
   describe('night team', () => {
