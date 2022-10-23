@@ -11,6 +11,7 @@ export class Team {
   guards = 0;
   guardManagers = 0;
   washers = 0;
+  protectors = 0;
 }
 
 export class TeamComposition {
@@ -36,6 +37,7 @@ export class DiggingEstimator {
     const digPerRotation = this.getDayMeters(rockType);
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
+    const isGoblins = this.goblinsEstimator("location");
 
     if (maxPossibleMeters > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
@@ -151,6 +153,12 @@ export class DiggingEstimator {
       nightTeam.guardManagers +
       nightTeam.lighters;
     return composition;
+  }
+
+  protected goblinsEstimator(location: string): boolean {
+    const url = `dtp://research.vin.co/are-there-goblins/${location}`;
+    console.log(`Tried to fetch ${url}`);
+    return true;
   }
 
   protected getDayMeters(rockType: string): number[] {
