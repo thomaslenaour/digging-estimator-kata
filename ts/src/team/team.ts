@@ -7,6 +7,7 @@ export enum Role {
   Guards = 'Guards',
   GuardManagers = 'GuardManagers',
   Washers = 'Washers',
+  Protectors = 'Protectors',
 }
 
 export abstract class Team {
@@ -19,10 +20,14 @@ export abstract class Team {
     [Role.Guards]: 0,
     [Role.GuardManagers]: 0,
     [Role.Washers]: 0,
+    [Role.Protectors]: 0,
   };
 
-  constructor(nbOfMiners: number) {
+  constructor(nbOfMiners: number, gobelins: boolean) {
     this.incrementRole(Role.Miners, nbOfMiners);
+    if (gobelins && nbOfMiners > 0) {
+      this.incrementRole(Role.Protectors, 2);
+    }
   }
 
   protected abstract calculateHealers(): void;

@@ -1,8 +1,8 @@
 import { Team, Role } from './team';
 
 export class DayTeam extends Team {
-  constructor(nbOfMiners: number) {
-    super(nbOfMiners);
+  constructor(nbOfMiners: number, gobelins: boolean) {
+    super(nbOfMiners, gobelins);
     this.init();
   }
 

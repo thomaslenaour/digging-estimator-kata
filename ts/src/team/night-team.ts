@@ -5,8 +5,8 @@ const GUARDS_SLICE_FOR_THREE_DWARFS = 3;
 const GUARDS_MANAGER_SLICE_FOR_THREE_GUARDS = 3;
 
 export class NightTeam extends Team {
-  constructor(nbOfMiners: number) {
-    super(nbOfMiners);
+  constructor(nbOfMiners: number, gobelins: boolean) {
+    super(nbOfMiners, gobelins);
     if (nbOfMiners > 0) {
       this.init();
     }
@@ -35,21 +35,26 @@ export class NightTeam extends Team {
         (this.getRole(Role.Miners) +
           this.getRole(Role.Healers) +
           this.getRole(Role.Smithies) +
-          this.getRole(Role.Lighters)) /
+          this.getRole(Role.Lighters) +
+          this.getRole(Role.Protectors)) /
           4,
       ) * 4,
     );
   }
 
   private calculateLighters(): void {
-    this.incrementRole(Role.Lighters, this.getRole(Role.Miners) + 1);
+    this.incrementRole(
+      Role.Lighters,
+      this.getRole(Role.Miners) + this.getRole(Role.Protectors) + 1,
+    );
   }
 
-  private getGuardsAndInKeepers() {
+  private getRolesWhoDontNeedGuards() {
     return (
       this.getRole(Role.Guards) +
       this.getRole(Role.GuardManagers) +
-      this.getRole(Role.InnKeepers)
+      this.getRole(Role.InnKeepers) +
+      this.getRole(Role.Protectors)
     );
   }
 
@@ -68,7 +73,7 @@ export class NightTeam extends Team {
 
       this.updateRole(
         Role.Guards,
-        (this.getTotal() - this.getGuardsAndInKeepers()) /
+        (this.getTotal() - this.getRolesWhoDontNeedGuards()) /
           GUARDS_SLICE_FOR_THREE_DWARFS,
       );
 
