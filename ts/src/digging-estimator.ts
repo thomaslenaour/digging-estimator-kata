@@ -1,144 +1,8 @@
-export class TunnelTooLongForDelayException extends Error {}
-
-export class InvalidFormatException extends Error {}
-
-export enum Role {
-  Miners = 'Miners',
-  Healers = 'Healers',
-  Smithies = 'Smithies',
-  Lighters = 'Lighters',
-  InnKeepers = 'InnKeepers',
-  Guards = 'Guards',
-  GuardManagers = 'GuardManagers',
-  Washers = 'Washers',
-}
-
-class Team {
-  private composition: Record<Role, number> = {
-    [Role.Miners]: 0,
-    [Role.Healers]: 0,
-    [Role.Smithies]: 0,
-    [Role.Lighters]: 0,
-    [Role.InnKeepers]: 0,
-    [Role.Guards]: 0,
-    [Role.GuardManagers]: 0,
-    [Role.Washers]: 0,
-  };
-
-  constructor(nbOfMiners: number) {
-    this.incrementRole(Role.Miners, nbOfMiners);
-
-    if (this.composition.Miners > 0) {
-      this.incrementRole(Role.Healers, 1);
-      this.incrementRole(Role.Smithies, 2);
-    }
-  }
-
-  public incrementRole(role: Role, nb: number) {
-    this.composition[role] = this.composition[role] + nb;
-    return this.composition[role];
-  }
-
-  public updateRole(role: Role, nb: number) {
-    this.composition[role] = nb;
-  }
-
-  public getRole(role: Role) {
-    return this.composition[role];
-  }
-
-  public getComposition() {
-    return this.composition;
-  }
-}
-
-class DayTeam extends Team {
-  constructor(nbOfMiners: number) {
-    super(nbOfMiners);
-    this.init();
-  }
-
-  private init() {
-    this.incrementRole(
-      Role.InnKeepers,
-      Math.ceil(
-        (this.getRole(Role.Miners) +
-          this.getRole(Role.Healers) +
-          this.getRole(Role.Smithies)) /
-          4,
-      ) * 4,
-    );
-    this.incrementRole(
-      Role.Washers,
-      Math.ceil(
-        (this.getRole(Role.Miners) +
-          this.getRole(Role.Healers) +
-          this.getRole(Role.Smithies) +
-          this.getRole(Role.InnKeepers)) /
-          10,
-      ),
-    );
-  }
-}
-
-class NightTeam extends Team {
-  constructor(nbOfMiners: number) {
-    super(nbOfMiners);
-    this.init();
-  }
-
-  private init() {
-    this.incrementRole(Role.Lighters, this.getRole(Role.Miners) + 1);
-    this.incrementRole(
-      Role.InnKeepers,
-      Math.ceil(
-        (this.getRole(Role.Miners) +
-          this.getRole(Role.Healers) +
-          this.getRole(Role.Smithies) +
-          this.getRole(Role.Lighters)) /
-          4,
-      ) * 4,
-    );
-  }
-}
-
-export class TeamComposition {
-  private total = 0;
-
-  constructor(
-    private readonly dayTeam: DayTeam,
-    private readonly nightTeam: NightTeam,
-  ) {}
-
-  public calculateTotal() {
-    this.total =
-      this.dayTeam.getRole(Role.Miners) +
-      this.dayTeam.getRole(Role.Washers) +
-      this.dayTeam.getRole(Role.Healers) +
-      this.dayTeam.getRole(Role.Smithies) +
-      this.dayTeam.getRole(Role.InnKeepers) +
-      this.nightTeam.getRole(Role.Miners) +
-      this.nightTeam.getRole(Role.Washers) +
-      this.nightTeam.getRole(Role.Healers) +
-      this.nightTeam.getRole(Role.Smithies) +
-      this.nightTeam.getRole(Role.InnKeepers) +
-      this.nightTeam.getRole(Role.Guards) +
-      this.nightTeam.getRole(Role.GuardManagers) +
-      this.nightTeam.getRole(Role.Lighters);
-  }
-
-  public getTotal() {
-    return this.total;
-  }
-
-  public getDayTeam() {
-    return this.dayTeam;
-  }
-
-  public getNightTeam() {
-    return this.nightTeam;
-  }
-}
+import {
+  InvalidFormatException,
+  TunnelTooLongForDelayException,
+} from './error';
+import { DayTeam, NightTeam, Role, TeamComposition } from './team';
 
 export class DiggingEstimator {
   tunnel(length: number, days: number, rockType: string): TeamComposition {
@@ -149,16 +13,18 @@ export class DiggingEstimator {
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
     const nightTeamRequired = maxPossibleMeters > maxDigPerRotation;
+    const nbMinersByTeam = digPerRotation.length - 1;
 
     if (maxPossibleMeters > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
 
-    const dayTeam = new DayTeam(digPerRotation.length - 1);
-    let nightTeam;
+    const dayTeam = new DayTeam(nbMinersByTeam);
+    const nightTeam = nightTeamRequired
+      ? new NightTeam(nbMinersByTeam)
+      : new NightTeam(0);
 
     if (nightTeamRequired) {
-      nightTeam = new NightTeam(digPerRotation.length - 1);
       const nightTeamComposition = nightTeam.getComposition();
 
       // eslint-disable-next-line no-constant-condition
@@ -208,10 +74,7 @@ export class DiggingEstimator {
       }
     }
 
-    const composition = new TeamComposition(
-      dayTeam,
-      nightTeam ? nightTeam : new NightTeam(0),
-    );
+    const composition = new TeamComposition(dayTeam, nightTeam);
     composition.calculateTotal();
 
     return composition;
