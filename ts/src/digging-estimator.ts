@@ -46,6 +46,10 @@ class Team {
   public getRole(role: Role) {
     return this.composition[role];
   }
+
+  public getComposition() {
+    return this.composition;
+  }
 }
 
 class DayTeam extends Team {
@@ -155,12 +159,7 @@ export class DiggingEstimator {
 
     if (nightTeamRequired) {
       nightTeam = new NightTeam(digPerRotation.length - 1);
-
-      const nightTeamHealers = nightTeam.getRole(Role.Healers);
-      const nightTeamSmithies = nightTeam.getRole(Role.Smithies);
-      const nightTeamInnKeepers = nightTeam.getRole(Role.InnKeepers);
-      const nightTeamLighters = nightTeam.getRole(Role.Lighters);
-      const nighTeamMiners = nightTeam.getRole(Role.Miners);
+      const nightTeamComposition = nightTeam.getComposition();
 
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -171,11 +170,11 @@ export class DiggingEstimator {
         nightTeam.updateRole(
           Role.Washers,
           Math.ceil(
-            (nighTeamMiners +
-              nightTeamHealers +
-              nightTeamSmithies +
-              nightTeamInnKeepers +
-              nightTeamLighters +
+            (nightTeamComposition.Miners +
+              nightTeamComposition.Healers +
+              nightTeamComposition.Smithies +
+              nightTeamComposition.InnKeepers +
+              nightTeamComposition.Lighters +
               nightTeam.getRole(Role.Guards) +
               nightTeam.getRole(Role.GuardManagers)) /
               10,
@@ -185,10 +184,10 @@ export class DiggingEstimator {
         nightTeam.updateRole(
           Role.Guards,
           Math.ceil(
-            (nightTeamHealers +
-              nighTeamMiners +
-              nightTeamSmithies +
-              nightTeamLighters +
+            (nightTeamComposition.Healers +
+              nightTeamComposition.Miners +
+              nightTeamComposition.Smithies +
+              nightTeamComposition.Lighters +
               nightTeam.getRole(Role.Washers)) /
               3,
           ),
