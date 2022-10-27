@@ -93,34 +93,25 @@ export class DiggingEstimator {
       throw new TunnelTooLongForDelayException();
     }
 
-    // const composition = new TeamComposition();
     const dayTeam = new DayTeam();
-    const nightTeam = new DayTeam();
+    const nightTeam = new NightTeam();
 
-    // Miners
-    for (let i = 0; i < digPerRotation.length - 1; ++i) {
-      if (digPerRotation[i] < maxPossibleMeters) {
-        dayTeam.incrementRole(Role.Miners, 1);
-      }
-    }
+    dayTeam.incrementRole(Role.Miners, digPerRotation.length - 1);
+
     if (maxPossibleMeters > maxDigPerRotation) {
-      for (let i = 0; i < digPerRotation.length - 1; ++i) {
-        if (digPerRotation[i] + maxDigPerRotation < maxPossibleMeters) {
-          nightTeam.incrementRole(Role.Miners, 1);
-        }
-      }
+      nightTeam.incrementRole(Role.Miners, digPerRotation.length - 1);
     }
 
-    const dayTeamHasMiners = dayTeam.getRole(Role.Miners) > 0;
-    const nightTeamHasMiners = nightTeam.getRole(Role.Miners) > 0;
+    const dayTeamMiners = dayTeam.getRole(Role.Miners);
+    const nighTeamMiners = nightTeam.getRole(Role.Miners);
 
-    if (dayTeamHasMiners) {
+    if (dayTeamMiners > 0) {
       dayTeam.incrementRole(Role.Healers, 1);
       dayTeam.incrementRole(Role.Smithies, 2);
       dayTeam.incrementRole(
         Role.InnKeepers,
         Math.ceil(
-          (dayTeam.getRole(Role.Miners) +
+          (dayTeamMiners +
             dayTeam.getRole(Role.Healers) +
             dayTeam.getRole(Role.Smithies)) /
             4,
@@ -138,17 +129,14 @@ export class DiggingEstimator {
       );
     }
 
-    if (nightTeamHasMiners) {
+    if (nighTeamMiners > 0) {
       nightTeam.incrementRole(Role.Healers, 1);
       nightTeam.incrementRole(Role.Smithies, 2);
-      nightTeam.incrementRole(
-        Role.Lighters,
-        nightTeam.getRole(Role.Miners) + 1,
-      );
+      nightTeam.incrementRole(Role.Lighters, nighTeamMiners + 1);
       nightTeam.incrementRole(
         Role.InnKeepers,
         Math.ceil(
-          (nightTeam.getRole(Role.Miners) +
+          (nighTeamMiners +
             nightTeam.getRole(Role.Healers) +
             nightTeam.getRole(Role.Smithies) +
             nightTeam.getRole(Role.Lighters)) /
@@ -156,6 +144,11 @@ export class DiggingEstimator {
         ) * 4,
       );
     }
+
+    const nightTeamHealers = nightTeam.getRole(Role.Healers);
+    const nightTeamSmithies = nightTeam.getRole(Role.Smithies);
+    const nightTeamInnKeepers = nightTeam.getRole(Role.InnKeepers);
+    const nightTeamLighters = nightTeam.getRole(Role.Lighters);
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -166,11 +159,11 @@ export class DiggingEstimator {
       nightTeam.updateRole(
         Role.Washers,
         Math.ceil(
-          (nightTeam.getRole(Role.Miners) +
-            nightTeam.getRole(Role.Healers) +
-            nightTeam.getRole(Role.Smithies) +
-            nightTeam.getRole(Role.InnKeepers) +
-            nightTeam.getRole(Role.Lighters) +
+          (nighTeamMiners +
+            nightTeamHealers +
+            nightTeamSmithies +
+            nightTeamInnKeepers +
+            nightTeamLighters +
             nightTeam.getRole(Role.Guards) +
             nightTeam.getRole(Role.GuardManagers)) /
             10,
@@ -180,10 +173,10 @@ export class DiggingEstimator {
       nightTeam.updateRole(
         Role.Guards,
         Math.ceil(
-          (nightTeam.getRole(Role.Healers) +
-            nightTeam.getRole(Role.Miners) +
-            nightTeam.getRole(Role.Smithies) +
-            nightTeam.getRole(Role.Lighters) +
+          (nightTeamHealers +
+            nighTeamMiners +
+            nightTeamSmithies +
+            nightTeamLighters +
             nightTeam.getRole(Role.Washers)) /
             3,
         ),
