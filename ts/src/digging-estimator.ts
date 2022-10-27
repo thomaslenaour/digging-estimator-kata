@@ -1,42 +1,40 @@
 export class TunnelTooLongForDelayException extends Error {}
 
 export class InvalidFormatException extends Error {}
-interface TeamRole {
-  miners: number;
-  healers: number;
-  smithies: number;
-  lighters: number;
-  innKeepers: number;
-  guards: number;
-  guardManagers: number;
-  washers: number;
+
+export enum Role {
+  Miners = 'Miners',
+  Healers = 'Healers',
+  Smithies = 'Smithies',
+  Lighters = 'Lighters',
+  InnKeepers = 'InnKeepers',
+  Guards = 'Guards',
+  GuardManagers = 'GuardManagers',
+  Washers = 'Washers',
 }
 
-interface ITeam {
-  incrementRole(role: keyof TeamRole, nb: number): void;
-  getRole(role: keyof TeamRole): number;
-}
+class Team {
+  private composition: Record<Role, number> = {
+    [Role.Miners]: 0,
+    [Role.Healers]: 0,
+    [Role.Smithies]: 0,
+    [Role.Lighters]: 0,
+    [Role.InnKeepers]: 0,
+    [Role.Guards]: 0,
+    [Role.GuardManagers]: 0,
+    [Role.Washers]: 0,
+  };
 
-class Team implements TeamRole, ITeam {
-  public miners = 0;
-  public healers = 0;
-  public smithies = 0;
-  public lighters = 0;
-  public innKeepers = 0;
-  public guards = 0;
-  public guardManagers = 0;
-  public washers = 0;
-
-  public incrementRole(role: keyof TeamRole, nb: number) {
-    this[role] = this[role] + nb;
+  public incrementRole(role: Role, nb: number) {
+    this.composition[role] = this.composition[role] + nb;
   }
 
-  public updateRole(role: keyof TeamRole, nb: number) {
-    this[role] = nb;
+  public updateRole(role: Role, nb: number) {
+    this.composition[role] = nb;
   }
 
-  public getRole(role: keyof TeamRole) {
-    return this[role];
+  public getRole(role: Role) {
+    return this.composition[role];
   }
 }
 
@@ -54,19 +52,19 @@ export class TeamComposition {
 
   public calculateTotal() {
     this.total =
-      this.dayTeam.getRole('miners') +
-      this.dayTeam.getRole('washers') +
-      this.dayTeam.getRole('healers') +
-      this.dayTeam.getRole('smithies') +
-      this.dayTeam.getRole('innKeepers') +
-      this.nightTeam.getRole('miners') +
-      this.nightTeam.getRole('washers') +
-      this.nightTeam.getRole('healers') +
-      this.nightTeam.getRole('smithies') +
-      this.nightTeam.getRole('innKeepers') +
-      this.nightTeam.getRole('guards') +
-      this.nightTeam.getRole('guardManagers') +
-      this.nightTeam.getRole('lighters');
+      this.dayTeam.getRole(Role.Miners) +
+      this.dayTeam.getRole(Role.Washers) +
+      this.dayTeam.getRole(Role.Healers) +
+      this.dayTeam.getRole(Role.Smithies) +
+      this.dayTeam.getRole(Role.InnKeepers) +
+      this.nightTeam.getRole(Role.Miners) +
+      this.nightTeam.getRole(Role.Washers) +
+      this.nightTeam.getRole(Role.Healers) +
+      this.nightTeam.getRole(Role.Smithies) +
+      this.nightTeam.getRole(Role.InnKeepers) +
+      this.nightTeam.getRole(Role.Guards) +
+      this.nightTeam.getRole(Role.GuardManagers) +
+      this.nightTeam.getRole(Role.Lighters);
   }
 
   public getTotal() {
@@ -102,55 +100,58 @@ export class DiggingEstimator {
     // Miners
     for (let i = 0; i < digPerRotation.length - 1; ++i) {
       if (digPerRotation[i] < maxPossibleMeters) {
-        dayTeam.incrementRole('miners', 1);
+        dayTeam.incrementRole(Role.Miners, 1);
       }
     }
     if (maxPossibleMeters > maxDigPerRotation) {
       for (let i = 0; i < digPerRotation.length - 1; ++i) {
         if (digPerRotation[i] + maxDigPerRotation < maxPossibleMeters) {
-          nightTeam.incrementRole('miners', 1);
+          nightTeam.incrementRole(Role.Miners, 1);
         }
       }
     }
 
-    const dayTeamHasMiners = dayTeam.getRole('miners') > 0;
-    const nightTeamHasMiners = nightTeam.getRole('miners') > 0;
+    const dayTeamHasMiners = dayTeam.getRole(Role.Miners) > 0;
+    const nightTeamHasMiners = nightTeam.getRole(Role.Miners) > 0;
 
     if (dayTeamHasMiners) {
-      dayTeam.incrementRole('healers', 1);
-      dayTeam.incrementRole('smithies', 2);
+      dayTeam.incrementRole(Role.Healers, 1);
+      dayTeam.incrementRole(Role.Smithies, 2);
       dayTeam.incrementRole(
-        'innKeepers',
+        Role.InnKeepers,
         Math.ceil(
-          (dayTeam.getRole('miners') +
-            dayTeam.getRole('healers') +
-            dayTeam.getRole('smithies')) /
+          (dayTeam.getRole(Role.Miners) +
+            dayTeam.getRole(Role.Healers) +
+            dayTeam.getRole(Role.Smithies)) /
             4,
         ) * 4,
       );
       dayTeam.incrementRole(
-        'washers',
+        Role.Washers,
         Math.ceil(
-          (dayTeam.getRole('miners') +
-            dayTeam.getRole('healers') +
-            dayTeam.getRole('smithies') +
-            dayTeam.getRole('innKeepers')) /
+          (dayTeam.getRole(Role.Miners) +
+            dayTeam.getRole(Role.Healers) +
+            dayTeam.getRole(Role.Smithies) +
+            dayTeam.getRole(Role.InnKeepers)) /
             10,
         ),
       );
     }
 
     if (nightTeamHasMiners) {
-      nightTeam.incrementRole('healers', 1);
-      nightTeam.incrementRole('smithies', 2);
-      nightTeam.incrementRole('lighters', nightTeam.getRole('miners') + 1);
+      nightTeam.incrementRole(Role.Healers, 1);
+      nightTeam.incrementRole(Role.Smithies, 2);
       nightTeam.incrementRole(
-        'innKeepers',
+        Role.Lighters,
+        nightTeam.getRole(Role.Miners) + 1,
+      );
+      nightTeam.incrementRole(
+        Role.InnKeepers,
         Math.ceil(
-          (nightTeam.getRole('miners') +
-            nightTeam.getRole('healers') +
-            nightTeam.getRole('smithies') +
-            nightTeam.getRole('lighters')) /
+          (nightTeam.getRole(Role.Miners) +
+            nightTeam.getRole(Role.Healers) +
+            nightTeam.getRole(Role.Smithies) +
+            nightTeam.getRole(Role.Lighters)) /
             4,
         ) * 4,
       );
@@ -158,45 +159,45 @@ export class DiggingEstimator {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const oldWashers = nightTeam.getRole('washers');
-      const oldGuard = nightTeam.getRole('guards');
-      const oldChiefGuard = nightTeam.getRole('guardManagers');
+      const oldWashers = nightTeam.getRole(Role.Washers);
+      const oldGuard = nightTeam.getRole(Role.Guards);
+      const oldChiefGuard = nightTeam.getRole(Role.GuardManagers);
 
       nightTeam.updateRole(
-        'washers',
+        Role.Washers,
         Math.ceil(
-          (nightTeam.getRole('miners') +
-            nightTeam.getRole('healers') +
-            nightTeam.getRole('smithies') +
-            nightTeam.getRole('innKeepers') +
-            nightTeam.getRole('lighters') +
-            nightTeam.getRole('guards') +
-            nightTeam.getRole('guardManagers')) /
+          (nightTeam.getRole(Role.Miners) +
+            nightTeam.getRole(Role.Healers) +
+            nightTeam.getRole(Role.Smithies) +
+            nightTeam.getRole(Role.InnKeepers) +
+            nightTeam.getRole(Role.Lighters) +
+            nightTeam.getRole(Role.Guards) +
+            nightTeam.getRole(Role.GuardManagers)) /
             10,
         ),
       );
 
       nightTeam.updateRole(
-        'guards',
+        Role.Guards,
         Math.ceil(
-          (nightTeam.getRole('healers') +
-            nightTeam.getRole('miners') +
-            nightTeam.getRole('smithies') +
-            nightTeam.getRole('lighters') +
-            nightTeam.getRole('washers')) /
+          (nightTeam.getRole(Role.Healers) +
+            nightTeam.getRole(Role.Miners) +
+            nightTeam.getRole(Role.Smithies) +
+            nightTeam.getRole(Role.Lighters) +
+            nightTeam.getRole(Role.Washers)) /
             3,
         ),
       );
 
       nightTeam.updateRole(
-        'guardManagers',
-        Math.ceil(nightTeam.getRole('guards') / 3),
+        Role.GuardManagers,
+        Math.ceil(nightTeam.getRole(Role.Guards) / 3),
       );
 
       if (
-        oldWashers === nightTeam.getRole('washers') &&
-        oldGuard === nightTeam.getRole('guards') &&
-        oldChiefGuard === nightTeam.getRole('guardManagers')
+        oldWashers === nightTeam.getRole(Role.Washers) &&
+        oldGuard === nightTeam.getRole(Role.Guards) &&
+        oldChiefGuard === nightTeam.getRole(Role.GuardManagers)
       ) {
         break;
       }
