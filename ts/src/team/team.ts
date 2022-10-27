@@ -36,7 +36,7 @@ export abstract class Team {
   }
 
   public updateRole(role: Role, nb: number) {
-    this.composition[role] = nb;
+    this.composition[role] = Math.ceil(nb);
   }
 
   public getRole(role: Role) {

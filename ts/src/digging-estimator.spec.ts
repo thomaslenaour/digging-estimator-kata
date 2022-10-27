@@ -3,11 +3,9 @@ import {
   InvalidFormatException,
   TunnelTooLongForDelayException,
 } from './error';
-import { Role } from './team';
 
 class FakeDiggingEstimator extends DiggingEstimator {
   getRotationMeters() {
-    console.log('trigger');
     return [0, 3, 5.5, 7];
   }
 }
