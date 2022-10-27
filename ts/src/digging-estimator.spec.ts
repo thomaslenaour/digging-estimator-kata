@@ -5,7 +5,7 @@ import {
 } from './digging-estimator';
 
 class FakeDiggingEstimator extends DiggingEstimator {
-  getDayMeters() {
+  getRotationMeters() {
     console.log('trigger');
     return [0, 3, 5.5, 7];
   }
