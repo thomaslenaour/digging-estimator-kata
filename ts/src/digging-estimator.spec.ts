@@ -3,6 +3,7 @@ import {
   InvalidFormatException,
   TunnelTooLongForDelayException,
 } from './error';
+import { Role } from './team';
 
 class FakeDiggingEstimator extends DiggingEstimator {
   getRotationMeters() {
@@ -10,7 +11,7 @@ class FakeDiggingEstimator extends DiggingEstimator {
   }
 }
 
-describe('digging estimator', () => {
+describe('Digging Estimator', () => {
   let estimator: DiggingEstimator;
 
   beforeEach(() => {
@@ -20,108 +21,55 @@ describe('digging estimator', () => {
   it('should return as Dr Pockovsky said', () => {
     // To have it work, you need to go set the rates to [0, 3, 5.5, 7]
     const result = estimator.tunnel(28, 2, 'granite');
-    console.log('result', result);
 
     expect(result.getTotal()).toBe(48);
   });
 
-  describe('day team', () => {
-    it('should have 3 miners', () => {
+  describe('Day Team', () => {
+    const dayTeamExpected: Record<Role, number> = {
+      [Role.Miners]: 3,
+      [Role.Healers]: 1,
+      [Role.Smithies]: 2,
+      [Role.Lighters]: 0,
+      [Role.InnKeepers]: 8,
+      [Role.Guards]: 0,
+      [Role.GuardManagers]: 0,
+      [Role.Washers]: 2,
+    };
+
+    it.each(
+      Object.entries(dayTeamExpected).map(([role, expected]) => ({
+        role,
+        expected,
+      })),
+    )('should have $expected $role', ({ role, expected }) => {
       const result = estimator.tunnel(28, 2, 'granite');
 
-      expect(result.getDayTeam().Miners).toBe(3);
-    });
-
-    it('should have 2 smithies', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().Smithies).toBe(2);
-    });
-
-    it('should have 1 healer', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().Healers).toBe(1);
-    });
-
-    it('should not have lighter', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().Lighters).toBe(0);
-    });
-
-    it('should have 8 innkeepers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().InnKeepers).toBe(8);
-    });
-
-    it('should have 0 guards', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().Guards).toBe(0);
-    });
-
-    it('should have 0 guardManagers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().GuardManagers).toBe(0);
-    });
-
-    it('should have 2 washers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getDayTeam().Washers).toBe(2);
+      expect(result.getDayTeam()[role as Role]).toBe(expected);
     });
   });
 
-  describe('night team', () => {
-    it('should have 3 miners', () => {
+  describe('Night Team', () => {
+    const nightTeamExpected: Record<Role, number> = {
+      [Role.Miners]: 3,
+      [Role.Healers]: 1,
+      [Role.Smithies]: 2,
+      [Role.Lighters]: 4,
+      [Role.InnKeepers]: 12,
+      [Role.Guards]: 5,
+      [Role.GuardManagers]: 2,
+      [Role.Washers]: 3,
+    };
+
+    it.each(
+      Object.entries(nightTeamExpected).map(([role, expected]) => ({
+        role,
+        expected,
+      })),
+    )('should have $expected $role', ({ role, expected }) => {
       const result = estimator.tunnel(28, 2, 'granite');
 
-      expect(result.getNightTeam().Miners).toBe(3);
-    });
-
-    it('should have 2 smithies', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().Smithies).toBe(2);
-    });
-
-    it('should have 1 healer', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().Healers).toBe(1);
-    });
-
-    it('should have 4 ligthers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().Lighters).toBe(4);
-    });
-
-    it('should have 12 innkeepers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().InnKeepers).toBe(12);
-    });
-
-    it('should have 5 guards', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().Guards).toBe(5);
-    });
-
-    it('should have 2 guardManagers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().GuardManagers).toBe(2);
-    });
-
-    it('should have 3 washers', () => {
-      const result = estimator.tunnel(28, 2, 'granite');
-
-      expect(result.getNightTeam().Washers).toBe(3);
+      expect(result.getNightTeam()[role as Role]).toBe(expected);
     });
   });
 
