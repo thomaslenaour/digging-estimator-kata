@@ -1,23 +1,85 @@
 export class TunnelTooLongForDelayException extends Error {}
 
 export class InvalidFormatException extends Error {}
-
-export class Team {
-  miners = 0;
-  healers = 0;
-  smithies = 0;
-  lighters = 0;
-  innKeepers = 0;
-  guards = 0;
-  guardManagers = 0;
-  washers = 0;
+interface TeamRole {
+  miners: number;
+  healers: number;
+  smithies: number;
+  lighters: number;
+  innKeepers: number;
+  guards: number;
+  guardManagers: number;
+  washers: number;
 }
 
-export class TeamComposition {
-  dayTeam: Team = new Team();
-  nightTeam: Team = new Team();
+interface ITeam {
+  incrementRole(role: keyof TeamRole, nb: number): void;
+  getRole(role: keyof TeamRole): number;
+}
 
-  total = 0;
+class Team implements TeamRole, ITeam {
+  public miners = 0;
+  public healers = 0;
+  public smithies = 0;
+  public lighters = 0;
+  public innKeepers = 0;
+  public guards = 0;
+  public guardManagers = 0;
+  public washers = 0;
+
+  public incrementRole(role: keyof TeamRole, nb: number) {
+    this[role] = this[role] + nb;
+  }
+
+  public updateRole(role: keyof TeamRole, nb: number) {
+    this[role] = nb;
+  }
+
+  public getRole(role: keyof TeamRole) {
+    return this[role];
+  }
+}
+
+class DayTeam extends Team {}
+
+class NightTeam extends Team {}
+
+export class TeamComposition {
+  private total = 0;
+
+  constructor(
+    private readonly dayTeam: DayTeam,
+    private readonly nightTeam: NightTeam,
+  ) {}
+
+  public calculateTotal() {
+    this.total =
+      this.dayTeam.getRole('miners') +
+      this.dayTeam.getRole('washers') +
+      this.dayTeam.getRole('healers') +
+      this.dayTeam.getRole('smithies') +
+      this.dayTeam.getRole('innKeepers') +
+      this.nightTeam.getRole('miners') +
+      this.nightTeam.getRole('washers') +
+      this.nightTeam.getRole('healers') +
+      this.nightTeam.getRole('smithies') +
+      this.nightTeam.getRole('innKeepers') +
+      this.nightTeam.getRole('guards') +
+      this.nightTeam.getRole('guardManagers') +
+      this.nightTeam.getRole('lighters');
+  }
+
+  public getTotal() {
+    return this.total;
+  }
+
+  public getDayTeam() {
+    return this.dayTeam;
+  }
+
+  public getNightTeam() {
+    return this.nightTeam;
+  }
 }
 
 export class DiggingEstimator {
@@ -33,117 +95,116 @@ export class DiggingEstimator {
       throw new TunnelTooLongForDelayException();
     }
 
-    const composition = new TeamComposition();
+    // const composition = new TeamComposition();
+    const dayTeam = new DayTeam();
+    const nightTeam = new DayTeam();
 
     // Miners
     for (let i = 0; i < digPerRotation.length - 1; ++i) {
       if (digPerRotation[i] < maxPossibleMeters) {
-        composition.dayTeam.miners++;
+        dayTeam.incrementRole('miners', 1);
       }
     }
     if (maxPossibleMeters > maxDigPerRotation) {
       for (let i = 0; i < digPerRotation.length - 1; ++i) {
         if (digPerRotation[i] + maxDigPerRotation < maxPossibleMeters) {
-          composition.nightTeam.miners++;
+          nightTeam.incrementRole('miners', 1);
         }
       }
     }
 
-    const dayTeam = composition.dayTeam;
-    const nightTeam = composition.nightTeam;
-
-    const dayTeamHasMiners = dayTeam.miners > 0;
-    const nightTeamHasMiners = nightTeam.miners > 0;
+    const dayTeamHasMiners = dayTeam.getRole('miners') > 0;
+    const nightTeamHasMiners = nightTeam.getRole('miners') > 0;
 
     if (dayTeamHasMiners) {
-      ++dayTeam.healers;
-      ++dayTeam.smithies;
-      ++dayTeam.smithies;
-    }
-
-    if (nightTeamHasMiners) {
-      ++nightTeam.healers;
-      ++nightTeam.smithies;
-      ++nightTeam.smithies;
-    }
-
-    if (nightTeamHasMiners) {
-      nightTeam.lighters = nightTeam.miners + 1;
-    }
-
-    if (dayTeamHasMiners) {
-      dayTeam.innKeepers =
-        Math.ceil((dayTeam.miners + dayTeam.healers + dayTeam.smithies) / 4) *
-        4;
-      dayTeam.washers = Math.ceil(
-        (dayTeam.miners +
-          dayTeam.healers +
-          dayTeam.smithies +
-          dayTeam.innKeepers) /
-          10,
+      dayTeam.incrementRole('healers', 1);
+      dayTeam.incrementRole('smithies', 2);
+      dayTeam.incrementRole(
+        'innKeepers',
+        Math.ceil(
+          (dayTeam.getRole('miners') +
+            dayTeam.getRole('healers') +
+            dayTeam.getRole('smithies')) /
+            4,
+        ) * 4,
+      );
+      dayTeam.incrementRole(
+        'washers',
+        Math.ceil(
+          (dayTeam.getRole('miners') +
+            dayTeam.getRole('healers') +
+            dayTeam.getRole('smithies') +
+            dayTeam.getRole('innKeepers')) /
+            10,
+        ),
       );
     }
 
     if (nightTeamHasMiners) {
-      nightTeam.innKeepers =
+      nightTeam.incrementRole('healers', 1);
+      nightTeam.incrementRole('smithies', 2);
+      nightTeam.incrementRole('lighters', nightTeam.getRole('miners') + 1);
+      nightTeam.incrementRole(
+        'innKeepers',
         Math.ceil(
-          (nightTeam.miners +
-            nightTeam.healers +
-            nightTeam.smithies +
-            nightTeam.lighters) /
+          (nightTeam.getRole('miners') +
+            nightTeam.getRole('healers') +
+            nightTeam.getRole('smithies') +
+            nightTeam.getRole('lighters')) /
             4,
-        ) * 4;
+        ) * 4,
+      );
     }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const oldWashers = nightTeam.washers;
-      const oldGuard = nightTeam.guards;
-      const oldChiefGuard = nightTeam.guardManagers;
+      const oldWashers = nightTeam.getRole('washers');
+      const oldGuard = nightTeam.getRole('guards');
+      const oldChiefGuard = nightTeam.getRole('guardManagers');
 
-      nightTeam.washers = Math.ceil(
-        (nightTeam.miners +
-          nightTeam.healers +
-          nightTeam.smithies +
-          nightTeam.innKeepers +
-          nightTeam.lighters +
-          nightTeam.guards +
-          nightTeam.guardManagers) /
-          10,
+      nightTeam.updateRole(
+        'washers',
+        Math.ceil(
+          (nightTeam.getRole('miners') +
+            nightTeam.getRole('healers') +
+            nightTeam.getRole('smithies') +
+            nightTeam.getRole('innKeepers') +
+            nightTeam.getRole('lighters') +
+            nightTeam.getRole('guards') +
+            nightTeam.getRole('guardManagers')) /
+            10,
+        ),
       );
-      nightTeam.guards = Math.ceil(
-        (nightTeam.healers +
-          nightTeam.miners +
-          nightTeam.smithies +
-          nightTeam.lighters +
-          nightTeam.washers) /
-          3,
+
+      nightTeam.updateRole(
+        'guards',
+        Math.ceil(
+          (nightTeam.getRole('healers') +
+            nightTeam.getRole('miners') +
+            nightTeam.getRole('smithies') +
+            nightTeam.getRole('lighters') +
+            nightTeam.getRole('washers')) /
+            3,
+        ),
       );
-      nightTeam.guardManagers = Math.ceil(nightTeam.guards / 3);
+
+      nightTeam.updateRole(
+        'guardManagers',
+        Math.ceil(nightTeam.getRole('guards') / 3),
+      );
 
       if (
-        oldWashers === nightTeam.washers &&
-        oldGuard === nightTeam.guards &&
-        oldChiefGuard === nightTeam.guardManagers
+        oldWashers === nightTeam.getRole('washers') &&
+        oldGuard === nightTeam.getRole('guards') &&
+        oldChiefGuard === nightTeam.getRole('guardManagers')
       ) {
         break;
       }
     }
 
-    composition.total =
-      dayTeam.miners +
-      dayTeam.washers +
-      dayTeam.healers +
-      dayTeam.smithies +
-      dayTeam.innKeepers +
-      nightTeam.miners +
-      nightTeam.washers +
-      nightTeam.healers +
-      nightTeam.smithies +
-      nightTeam.innKeepers +
-      nightTeam.guards +
-      nightTeam.guardManagers +
-      nightTeam.lighters;
+    const composition = new TeamComposition(dayTeam, nightTeam);
+    composition.calculateTotal();
+
     return composition;
   }
 
